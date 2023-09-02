@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
-import { UpdateCredentialDto } from "./dto/update-credential.dto";
 import { CredetialsRepository } from "./credentials.repository";
 import { user } from "@prisma/client";
 // eslint-disable-next-line no-use-before-define, @typescript-eslint/no-var-requires
