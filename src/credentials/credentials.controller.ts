@@ -21,33 +21,25 @@ export class CredentialsController {
   constructor(private readonly credentialsService: CredentialsService) {}
 
   @Post()
-  create(
+  async create(
     @Body() createCredentialDto: CreateCredentialDto,
     @User() usuario: user,
   ) {
-    return this.credentialsService.create(createCredentialDto, usuario);
+    return await this.credentialsService.create(createCredentialDto, usuario);
   }
 
   @Get()
-  findAll() {
-    return this.credentialsService.findAll();
+  async findAll(@User() usuario: user) {
+    return await this.credentialsService.findAll(usuario);
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.credentialsService.findOne(+id);
-  }
-
-  @Patch(":id")
-  update(
-    @Param("id") id: string,
-    @Body() updateCredentialDto: UpdateCredentialDto,
-  ) {
-    return this.credentialsService.update(+id, updateCredentialDto);
+  async findOne(@Param("id") id: string, @User() usuario: user) {
+    return await this.credentialsService.findOne(+id, usuario);
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.credentialsService.remove(+id);
+  remove(@Param("id") id: string, @User() usuario: user) {
+    return this.credentialsService.remove(+id, usuario);
   }
 }

@@ -1,4 +1,9 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
 import { UpdateCredentialDto } from "./dto/update-credential.dto";
 import { CredetialsRepository } from "./credentials.repository";
@@ -8,6 +13,7 @@ const Cryptr = require("cryptr");
 
 @Injectable()
 export class CredentialsService {
+  crypt = new Cryptr(process.env.CRYPT_SECRET);
   constructor(private readonly credentialsRepository: CredetialsRepository) {}
 
   async create(createCredentialDto: CreateCredentialDto, usuario: user) {
@@ -18,8 +24,7 @@ export class CredentialsService {
       );
     if (credential) throw new ConflictException();
 
-    const crypt = new Cryptr(process.env.CRYPT_SECRET);
-    const hash = crypt.encrypt(createCredentialDto.password);
+    const hash = this.crypt.encrypt(createCredentialDto.password);
 
     await this.credentialsRepository.createCredential(
       createCredentialDto,
@@ -28,19 +33,40 @@ export class CredentialsService {
     );
   }
 
-  findAll() {
-    return `This action returns all credentials`;
+  async findAll(usuario: user) {
+    const credentials = await this.credentialsRepository.getAll(usuario);
+    return credentials.map((c) => ({
+      id: c.id,
+      name: c.name,
+      url: c.url,
+      username: c.username,
+      password: this.crypt.decrypt(c.password),
+      userId: c.userId,
+    }));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} credential`;
+  async findOne(id: number, usuario: user) {
+    const credential = await this.credentialsRepository.getById(id);
+    if (!credential) throw new NotFoundException();
+
+    if (credential.userId !== usuario.id) throw new ForbiddenException();
+
+    return {
+      id: credential.id,
+      name: credential.name,
+      url: credential.url,
+      username: credential.username,
+      password: this.crypt.decrypt(credential.password),
+      userId: credential.userId,
+    };
   }
 
-  update(id: number, updateCredentialDto: UpdateCredentialDto) {
-    return `This action updates a #${id} credential`;
-  }
+  async remove(id: number, usuario: user) {
+    const credential = await this.credentialsRepository.getById(id);
+    if (!credential) throw new NotFoundException();
 
-  remove(id: number) {
-    return `This action removes a #${id} credential`;
+    if (credential.userId !== usuario.id) throw new ForbiddenException();
+
+    await this.credentialsRepository.deleteById(id);
   }
 }

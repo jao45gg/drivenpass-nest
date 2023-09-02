@@ -7,13 +7,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post("/sign-up")
-  signUp(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async signUp(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
   @HttpCode(HttpStatus.OK)
   @Post("/sign-in")
-  signIn(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.signIn(createUserDto);
+  async signIn(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.signIn(createUserDto);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
+import { user } from "@prisma/client";
 
 @Injectable()
 export class CredetialsRepository {
@@ -27,6 +28,30 @@ export class CredetialsRepository {
         username: createCredentialDto.username,
         password,
         userId,
+      },
+    });
+  }
+
+  async getAll(usuario: user) {
+    return await this.prisma.credentials.findMany({
+      where: {
+        userId: usuario.id,
+      },
+    });
+  }
+
+  async getById(id: number) {
+    return await this.prisma.credentials.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async deleteById(id: number) {
+    return await this.prisma.credentials.delete({
+      where: {
+        id,
       },
     });
   }
