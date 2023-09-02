@@ -13,11 +13,36 @@ export class UsersRepository {
     });
   }
 
+  async getUserById(id: number) {
+    return await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
   async postUser(email: string, password: string) {
     return await this.prisma.user.create({
       data: {
         email,
         password,
+      },
+    });
+  }
+
+  async createToken(token: string, userId: number) {
+    return await this.prisma.tokens.create({
+      data: {
+        token,
+        userId,
+      },
+    });
+  }
+
+  async checkToken(token: string) {
+    return await this.prisma.tokens.findFirst({
+      where: {
+        token,
       },
     });
   }

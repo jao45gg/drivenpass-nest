@@ -1,12 +1,24 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import { UsersRepository } from "./users.repository";
 import * as bcrypt from "bcrypt";
+import { user } from "@prisma/client";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UsersRepository) {}
+  private EXPIRATION_TIME = "2 hours";
+  private ISSUER = "DrivenPass";
+  private AUDIENCE = "users";
+
+  constructor(
+    private readonly userRepository: UsersRepository,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const user = await this.userRepository.getUserByEmail(createUserDto.email);
@@ -17,19 +29,31 @@ export class UsersService {
     await this.userRepository.postUser(createUserDto.email, hash);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async signIn(createUserDto: CreateUserDto) {
+    const user = await this.userRepository.getUserByEmail(createUserDto.email);
+    if (!user) throw new UnauthorizedException();
+
+    const hash = await bcrypt.compare(createUserDto.password, user.password);
+    if (!hash) throw new UnauthorizedException();
+
+    return await this.createToken(user);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+  private async createToken(user: user) {
+    const { id, email } = user;
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+    const token = this.jwtService.sign(
+      { email },
+      {
+        expiresIn: this.EXPIRATION_TIME,
+        subject: String(id),
+        issuer: this.ISSUER,
+        audience: this.AUDIENCE,
+      },
+    );
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    await this.userRepository.createToken(token, user.id);
+
+    return { token };
   }
 }
