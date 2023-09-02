@@ -1,11 +1,20 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { UsersRepository } from "./users.repository";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return "This action adds a new user";
+  constructor(private readonly userRepository: UsersRepository) {}
+
+  async create(createUserDto: CreateUserDto) {
+    const user = await this.userRepository.getUserByEmail(createUserDto.email);
+    if (user) throw new ConflictException();
+
+    const saltOrRounds = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(createUserDto.password, saltOrRounds);
+    await this.userRepository.postUser(createUserDto.email, hash);
   }
 
   findAll() {
