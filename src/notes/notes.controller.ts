@@ -24,17 +24,17 @@ export class NotesController {
   }
 
   @Get()
-  findAll() {
-    return this.notesService.findAll();
+  async findAll(@User() usuario: user) {
+    return await this.notesService.findAll(usuario);
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.notesService.findOne(+id);
+  async findOne(@Param("id") id: string, @User() usuario: user) {
+    return await this.notesService.findOne(+id, usuario);
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.notesService.remove(+id);
+  async remove(@Param("id") id: string, @User() usuario: user) {
+    return await this.notesService.remove(+id, usuario);
   }
 }

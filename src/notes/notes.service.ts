@@ -1,4 +1,9 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { CreateNoteDto } from "./dto/create-note.dto";
 import { user } from "@prisma/client";
 import { NotesRepository } from "./notes.repository";
@@ -14,15 +19,27 @@ export class NotesService {
     await this.notesRepository.create(createNoteDto, usuario.id);
   }
 
-  findAll() {
-    return `This action returns all notes`;
+  async findAll(usuario: user) {
+    return await this.notesRepository.getAll(usuario.id);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} note`;
+  async findOne(id: number, usuario: user) {
+    const note = await this.notesRepository.getById(id);
+    if (!note) throw new NotFoundException();
+
+    if (note.userId !== usuario.id)
+      throw new ForbiddenException("Note not owned by this User!");
+
+    return note;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} note`;
+  async remove(id: number, usuario: user) {
+    const note = await this.notesRepository.getById(id);
+    if (!note) throw new NotFoundException();
+
+    if (note.userId !== usuario.id)
+      throw new ForbiddenException("Note not owned by this User!");
+
+    await this.notesRepository.delete(id);
   }
 }

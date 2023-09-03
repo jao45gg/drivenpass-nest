@@ -14,12 +14,36 @@ export class NotesRepository {
     });
   }
 
+  async getById(id: number) {
+    return await this.prisma.notes.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
   async create(createNoteDto: CreateNoteDto, userId: number) {
     return await this.prisma.notes.create({
       data: {
         name: createNoteDto.name,
         note: createNoteDto.note,
         userId,
+      },
+    });
+  }
+
+  async getAll(userId: number) {
+    return await this.prisma.notes.findMany({
+      where: {
+        userId,
+      },
+    });
+  }
+
+  async delete(id: number) {
+    return await this.prisma.notes.delete({
+      where: {
+        id,
       },
     });
   }

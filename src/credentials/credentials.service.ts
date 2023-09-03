@@ -48,7 +48,8 @@ export class CredentialsService {
     const credential = await this.credentialsRepository.getById(id);
     if (!credential) throw new NotFoundException();
 
-    if (credential.userId !== usuario.id) throw new ForbiddenException();
+    if (credential.userId !== usuario.id)
+      throw new ForbiddenException("Credential not owned by this User!");
 
     return {
       id: credential.id,
@@ -64,7 +65,8 @@ export class CredentialsService {
     const credential = await this.credentialsRepository.getById(id);
     if (!credential) throw new NotFoundException();
 
-    if (credential.userId !== usuario.id) throw new ForbiddenException();
+    if (credential.userId !== usuario.id)
+      throw new ForbiddenException("Credential not owned by this User!");
 
     await this.credentialsRepository.deleteById(id);
   }
