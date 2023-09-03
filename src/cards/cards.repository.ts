@@ -15,6 +15,30 @@ export class CardsRepository {
     });
   }
 
+  async deleteById(id: number) {
+    return await this.prisma.cards.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async getById(id: number) {
+    return await this.prisma.cards.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async getAll(userId: number) {
+    return await this.prisma.cards.findMany({
+      where: {
+        userId,
+      },
+    });
+  }
+
   async create(
     createCardDto: CreateCardDto,
     userId: number,

@@ -24,17 +24,17 @@ export class CardsController {
   }
 
   @Get()
-  findAll() {
-    return this.cardsService.findAll();
+  async findAll(@User() usuario: user) {
+    return await this.cardsService.findAll(usuario);
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.cardsService.findOne(+id);
+  async findOne(@Param("id") id: string, @User() usuario: user) {
+    return await this.cardsService.findOne(+id, usuario);
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.cardsService.remove(+id);
+  async remove(@Param("id") id: string, @User() usuario: user) {
+    return await this.cardsService.remove(+id, usuario);
   }
 }
