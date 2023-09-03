@@ -10,7 +10,6 @@ import {
   createCredential,
   createCredentialOnDB,
 } from "./factories/credentials.factory";
-import * as jwt from "jsonwebtoken";
 import { createNote, createNoteOnDB } from "./factories/notes.factory";
 import { createCard, createCardOnDB } from "./factories/cards.factory";
 
