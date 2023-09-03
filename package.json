@@ -11,7 +11,7 @@
     "start": "npm run dev:load-envs nest start",
     "start:dev": "npm run dev:load-envs nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "npm run prod:load-envs prod:migration:run node dist/main",
+    "start:prod": "npm run prod:load-envs && npm run prod:migration:run && node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
