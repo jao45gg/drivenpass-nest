@@ -48,7 +48,7 @@ model notes {
 model cards {
   id             Int      @id @default(autoincrement())
   name           String
-  cardNumber     Int
+  cardNumber     String
   cardName       String
   cvvNumber      String
   expirationDate DateTime

@@ -1,26 +1,17 @@
-import {
-  IsBoolean,
-  IsDateString,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-} from "class-validator";
+import { IsBoolean, IsDateString, IsNotEmpty } from "class-validator";
 
 export class CreateCardDto {
   @IsNotEmpty()
   name: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  cardNumber: number;
+  cardNumber: string;
 
   @IsNotEmpty()
-  @IsString()
   cardName: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  cvvNumber: number;
+  cvvNumber: string;
 
   @IsNotEmpty()
   @IsDateString()

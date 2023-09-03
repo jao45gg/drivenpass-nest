@@ -33,7 +33,7 @@ async function createUserWithToken() {
     },
   });
 
-  return { token, id: newUser.id };
+  return { token, id: newUser.id, password: user.password };
 }
 
 export { createUser, createUserWithToken };

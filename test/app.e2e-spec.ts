@@ -12,6 +12,7 @@ import {
 } from "./factories/credentials.factory";
 import * as jwt from "jsonwebtoken";
 import { createNote, createNoteOnDB } from "./factories/notes.factory";
+import { createCard, createCardOnDB } from "./factories/cards.factory";
 
 describe("AppController (e2e)", () => {
   let app: INestApplication;
@@ -29,6 +30,7 @@ describe("AppController (e2e)", () => {
     app.useGlobalPipes(new ValidationPipe());
     await prisma.credentials.deleteMany();
     await prisma.notes.deleteMany();
+    await prisma.cards.deleteMany();
     await prisma.tokens.deleteMany();
     await prisma.users.deleteMany();
     await app.init();
@@ -206,65 +208,93 @@ describe("AppController (e2e)", () => {
     });
   });
 
-  describe("/notes", () => {
-    it("POST /notes", async () => {
+  describe("/cards", () => {
+    it("POST /cards", async () => {
       const user = await createUserWithToken();
 
-      const note = createNote(user.id);
+      const card = createCard(user.id);
       return request(app.getHttpServer())
-        .post("/notes")
-        .send(note)
+        .post("/cards")
+        .send(card)
         .set("Authorization", `Bearer ${user.token}`)
         .expect(201);
     });
 
-    it("GET /notes", async () => {
+    it("GET /cards", async () => {
       const user = await createUserWithToken();
-      const note = await createNoteOnDB(user.id);
+      const card = await createCardOnDB(user.id);
 
       const response = await request(app.getHttpServer())
-        .get("/notes")
+        .get("/cards")
         .set("Authorization", `Bearer ${user.token}`);
 
       expect(response.statusCode).toBe(HttpStatus.OK);
       expect(response.body).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            id: note.id,
-            name: note.name,
-            note: note.note,
-            userId: note.userId,
+            id: card.id,
+            name: card.name,
+            cardNumber: card.cardNumber,
+            cardName: card.cardName,
+            cvvNumber: expect.any(String),
+            expirationDate: card.expirationDate.toISOString(),
+            cardPassword: expect.any(String),
+            virtualCard: card.virtualCard,
+            credit: card.credit,
+            debit: card.debit,
+            userId: card.userId,
           }),
         ]),
       );
     });
 
-    it("GET /notes/:id", async () => {
+    it("GET /cards/:id", async () => {
       const user = await createUserWithToken();
-      const note = await createNoteOnDB(user.id);
+      const card = await createCardOnDB(user.id);
 
       const response = await request(app.getHttpServer())
-        .get(`/notes/${note.id}`)
+        .get(`/cards/${card.id}`)
         .set("Authorization", `Bearer ${user.token}`);
 
       expect(response.statusCode).toBe(HttpStatus.OK);
       expect(response.body).toEqual(
         expect.objectContaining({
-          id: note.id,
-          name: note.name,
-          note: note.note,
-          userId: note.userId,
+          id: card.id,
+          name: card.name,
+          cardNumber: card.cardNumber,
+          cardName: card.cardName,
+          cvvNumber: expect.any(String),
+          expirationDate: card.expirationDate.toISOString(),
+          cardPassword: expect.any(String),
+          virtualCard: card.virtualCard,
+          credit: card.credit,
+          debit: card.debit,
+          userId: card.userId,
         }),
       );
     });
 
-    it(" DELETE /notes/:id", async () => {
+    it(" DELETE /cards/:id", async () => {
       const user = await createUserWithToken();
-      const note = await createNoteOnDB(user.id);
+      const card = await createCardOnDB(user.id);
 
       const response = await request(app.getHttpServer())
-        .delete(`/notes/${note.id}`)
+        .delete(`/cards/${card.id}`)
         .set("Authorization", `Bearer ${user.token}`);
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+    });
+  });
+
+  describe("/erase", () => {
+    it(" DELETE /erase", async () => {
+      const user = await createUserWithToken();
+      await createCardOnDB(user.id);
+
+      const response = await request(app.getHttpServer())
+        .delete("/erase")
+        .set("Authorization", `Bearer ${user.token}`)
+        .send({ password: user.password });
 
       expect(response.statusCode).toBe(HttpStatus.OK);
     });
