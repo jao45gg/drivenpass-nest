@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
 import { CredetialsRepository } from "./credentials.repository";
-import { user } from "@prisma/client";
+import { users } from "@prisma/client";
 // eslint-disable-next-line no-use-before-define, @typescript-eslint/no-var-requires
 const Cryptr = require("cryptr");
 
@@ -15,7 +15,7 @@ export class CredentialsService {
   crypt = new Cryptr(process.env.CRYPT_SECRET);
   constructor(private readonly credentialsRepository: CredetialsRepository) {}
 
-  async create(createCredentialDto: CreateCredentialDto, usuario: user) {
+  async create(createCredentialDto: CreateCredentialDto, usuario: users) {
     const credential =
       await this.credentialsRepository.findCredentialByNameAndUserId(
         createCredentialDto.name,
@@ -32,7 +32,7 @@ export class CredentialsService {
     );
   }
 
-  async findAll(usuario: user) {
+  async findAll(usuario: users) {
     const credentials = await this.credentialsRepository.getAll(usuario);
     return credentials.map((c) => ({
       id: c.id,
@@ -44,7 +44,7 @@ export class CredentialsService {
     }));
   }
 
-  async findOne(id: number, usuario: user) {
+  async findOne(id: number, usuario: users) {
     const credential = await this.credentialsRepository.getById(id);
     if (!credential) throw new NotFoundException();
 
@@ -61,7 +61,7 @@ export class CredentialsService {
     };
   }
 
-  async remove(id: number, usuario: user) {
+  async remove(id: number, usuario: users) {
     const credential = await this.credentialsRepository.getById(id);
     if (!credential) throw new NotFoundException();
 

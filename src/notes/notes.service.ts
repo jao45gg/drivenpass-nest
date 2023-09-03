@@ -5,14 +5,14 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { CreateNoteDto } from "./dto/create-note.dto";
-import { user } from "@prisma/client";
+import { users } from "@prisma/client";
 import { NotesRepository } from "./notes.repository";
 
 @Injectable()
 export class NotesService {
   constructor(private readonly notesRepository: NotesRepository) {}
 
-  async create(createNoteDto: CreateNoteDto, usuario: user) {
+  async create(createNoteDto: CreateNoteDto, usuario: users) {
     const note = await this.notesRepository.getByNameAndUserId(
       createNoteDto.name,
       usuario.id,
@@ -22,11 +22,11 @@ export class NotesService {
     await this.notesRepository.create(createNoteDto, usuario.id);
   }
 
-  async findAll(usuario: user) {
+  async findAll(usuario: users) {
     return await this.notesRepository.getAll(usuario.id);
   }
 
-  async findOne(id: number, usuario: user) {
+  async findOne(id: number, usuario: users) {
     const note = await this.notesRepository.getById(id);
     if (!note) throw new NotFoundException();
 
@@ -36,7 +36,7 @@ export class NotesService {
     return note;
   }
 
-  async remove(id: number, usuario: user) {
+  async remove(id: number, usuario: users) {
     const note = await this.notesRepository.getById(id);
     if (!note) throw new NotFoundException();
 

@@ -6,7 +6,7 @@ export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async getUserByEmail(email: string) {
-    return await this.prisma.user.findUnique({
+    return await this.prisma.users.findUnique({
       where: {
         email,
       },
@@ -14,7 +14,7 @@ export class UsersRepository {
   }
 
   async getUserById(id: number) {
-    return await this.prisma.user.findUnique({
+    return await this.prisma.users.findUnique({
       where: {
         id,
       },
@@ -22,7 +22,7 @@ export class UsersRepository {
   }
 
   async postUser(email: string, password: string) {
-    return await this.prisma.user.create({
+    return await this.prisma.users.create({
       data: {
         email,
         password,

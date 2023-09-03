@@ -6,7 +6,7 @@ import {
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
 import * as bcrypt from "bcrypt";
-import { user } from "@prisma/client";
+import { users } from "@prisma/client";
 import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
@@ -39,7 +39,7 @@ export class UsersService {
     return await this.createToken(user);
   }
 
-  private async createToken(user: user) {
+  private async createToken(user: users) {
     const { id, email } = user;
 
     const token = this.jwtService.sign(

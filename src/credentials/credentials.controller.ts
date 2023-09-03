@@ -11,7 +11,7 @@ import { CredentialsService } from "./credentials.service";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
 import { AuthGuard } from "../auth/auth-guard.guard";
 import { User } from "../users/decorators/user-decorator.decorator";
-import { user } from "@prisma/client";
+import { users } from "@prisma/client";
 
 @Controller("credentials")
 @UseGuards(AuthGuard)
@@ -21,23 +21,23 @@ export class CredentialsController {
   @Post()
   async create(
     @Body() createCredentialDto: CreateCredentialDto,
-    @User() usuario: user,
+    @User() usuario: users,
   ) {
     return await this.credentialsService.create(createCredentialDto, usuario);
   }
 
   @Get()
-  async findAll(@User() usuario: user) {
+  async findAll(@User() usuario: users) {
     return await this.credentialsService.findAll(usuario);
   }
 
   @Get(":id")
-  async findOne(@Param("id") id: string, @User() usuario: user) {
+  async findOne(@Param("id") id: string, @User() usuario: users) {
     return await this.credentialsService.findOne(+id, usuario);
   }
 
   @Delete(":id")
-  async remove(@Param("id") id: string, @User() usuario: user) {
+  async remove(@Param("id") id: string, @User() usuario: users) {
     return await this.credentialsService.remove(+id, usuario);
   }
 }

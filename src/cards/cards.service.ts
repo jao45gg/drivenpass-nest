@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { CreateCardDto } from "./dto/create-card.dto";
-import { user } from "@prisma/client";
+import { users } from "@prisma/client";
 import { CardsRepository } from "./cards.repository";
 // eslint-disable-next-line no-use-before-define, @typescript-eslint/no-var-requires
 const Cryptr = require("cryptr");
@@ -15,7 +15,7 @@ export class CardsService {
   crypt = new Cryptr(process.env.CRYPT_SECRET);
   constructor(private readonly cardsRepository: CardsRepository) {}
 
-  async create(createCardDto: CreateCardDto, usuario: user) {
+  async create(createCardDto: CreateCardDto, usuario: users) {
     const card = await this.cardsRepository.getByNameAndUserId(
       createCardDto.name,
       usuario.id,
@@ -33,7 +33,7 @@ export class CardsService {
     );
   }
 
-  async findAll(usuario: user) {
+  async findAll(usuario: users) {
     const cards = await this.cardsRepository.getAll(usuario.id);
     return cards.map((c) => ({
       id: c.id,
@@ -50,7 +50,7 @@ export class CardsService {
     }));
   }
 
-  async findOne(id: number, usuario: user) {
+  async findOne(id: number, usuario: users) {
     const card = await this.cardsRepository.getById(id);
     if (!card) throw new NotFoundException();
 
@@ -72,7 +72,7 @@ export class CardsService {
     };
   }
 
-  async remove(id: number, usuario: user) {
+  async remove(id: number, usuario: users) {
     const card = await this.cardsRepository.getById(id);
     if (!card) throw new NotFoundException();
 

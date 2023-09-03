@@ -11,7 +11,7 @@ import { CardsService } from "./cards.service";
 import { CreateCardDto } from "./dto/create-card.dto";
 import { AuthGuard } from "../auth/auth-guard.guard";
 import { User } from "../users/decorators/user-decorator.decorator";
-import { user } from "@prisma/client";
+import { users } from "@prisma/client";
 
 @UseGuards(AuthGuard)
 @Controller("cards")
@@ -19,22 +19,22 @@ export class CardsController {
   constructor(private readonly cardsService: CardsService) {}
 
   @Post()
-  async create(@Body() createCardDto: CreateCardDto, @User() usuario: user) {
+  async create(@Body() createCardDto: CreateCardDto, @User() usuario: users) {
     return await this.cardsService.create(createCardDto, usuario);
   }
 
   @Get()
-  async findAll(@User() usuario: user) {
+  async findAll(@User() usuario: users) {
     return await this.cardsService.findAll(usuario);
   }
 
   @Get(":id")
-  async findOne(@Param("id") id: string, @User() usuario: user) {
+  async findOne(@Param("id") id: string, @User() usuario: users) {
     return await this.cardsService.findOne(+id, usuario);
   }
 
   @Delete(":id")
-  async remove(@Param("id") id: string, @User() usuario: user) {
+  async remove(@Param("id") id: string, @User() usuario: users) {
     return await this.cardsService.remove(+id, usuario);
   }
 }

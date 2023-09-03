@@ -1,26 +1,17 @@
-import { Injectable } from "@nestjs/common";
-import { CreateEraseDto } from "./dto/create-erase.dto";
-import { UpdateEraseDto } from "./dto/update-erase.dto";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { EraseRepository } from "./erase.repository";
+import { users } from "@prisma/client";
+import { EraseDto } from "./dto/create-erase.dto";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class EraseService {
-  create(createEraseDto: CreateEraseDto) {
-    return "This action adds a new erase";
-  }
+  constructor(private readonly eraseRepository: EraseRepository) {}
 
-  findAll() {
-    return `This action returns all erase`;
-  }
+  async remove(eraseDto: EraseDto, usuario: users) {
+    const result = await bcrypt.compare(eraseDto.password, usuario.password);
+    if (!result) new UnauthorizedException();
 
-  findOne(id: number) {
-    return `This action returns a #${id} erase`;
-  }
-
-  update(id: number, updateEraseDto: UpdateEraseDto) {
-    return `This action updates a #${id} erase`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} erase`;
+    await this.eraseRepository.erase(usuario.id);
   }
 }

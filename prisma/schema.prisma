@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
+model users {
   id          Int           @id @default(autoincrement())
   email       String        @unique
   password    String
@@ -24,7 +24,7 @@ model tokens {
   id     Int    @id @default(autoincrement())
   token  String
   userId Int
-  user   user   @relation(fields: [userId], references: [id])
+  users  users  @relation(fields: [userId], references: [id])
 }
 
 model credentials {
@@ -34,7 +34,7 @@ model credentials {
   username String
   password String
   userId   Int
-  user     user   @relation(fields: [userId], references: [id])
+  users    users  @relation(fields: [userId], references: [id])
 }
 
 model notes {
@@ -42,7 +42,7 @@ model notes {
   name   String
   note   String
   userId Int
-  user   user   @relation(fields: [userId], references: [id])
+  users  users  @relation(fields: [userId], references: [id])
 }
 
 model cards {
@@ -57,5 +57,5 @@ model cards {
   credit         Boolean
   debit          Boolean
   userId         Int
-  user           user     @relation(fields: [userId], references: [id])
+  users          users    @relation(fields: [userId], references: [id])
 }
