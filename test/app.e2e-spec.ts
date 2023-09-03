@@ -4,8 +4,14 @@ import * as request from "supertest";
 import { AppModule } from "./../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { PrismaClient } from "@prisma/client";
-import createUser from "./factories/user.factory";
+import { createUser, createUserWithToken } from "./factories/user.factory";
 import * as bcrypt from "bcrypt";
+import {
+  createCredential,
+  createCredentialOnDB,
+} from "./factories/credentials.factory";
+import * as jwt from "jsonwebtoken";
+import { createNote, createNoteOnDB } from "./factories/notes.factory";
 
 describe("AppController (e2e)", () => {
   let app: INestApplication;
@@ -21,6 +27,9 @@ describe("AppController (e2e)", () => {
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
+    await prisma.credentials.deleteMany();
+    await prisma.notes.deleteMany();
+    await prisma.tokens.deleteMany();
     await prisma.users.deleteMany();
     await app.init();
   });
@@ -67,34 +76,197 @@ describe("AppController (e2e)", () => {
 
   describe("/credentials", () => {
     it("POST /credentials", async () => {
-      const user = createUser();
+      const user = await createUserWithToken();
+
+      const credential = createCredential(user.id);
       return request(app.getHttpServer())
         .post("/credentials")
-        .send(user)
+        .send(credential)
+        .set("Authorization", `Bearer ${user.token}`)
         .expect(201);
     });
 
-    it("POST /sign-in", async () => {
-      const user = createUser();
-      const saltOrRounds = await bcrypt.genSalt();
-      const hash = await bcrypt.hash(user.password, saltOrRounds);
-      await prisma.users.create({
-        data: {
-          email: user.email,
-          password: hash,
-        },
-      });
+    it("GET /credentials", async () => {
+      const user = await createUserWithToken();
+      const credential = await createCredentialOnDB(user.id);
 
       const response = await request(app.getHttpServer())
-        .post("/users/sign-in")
-        .send(user);
+        .get("/credentials")
+        .set("Authorization", `Bearer ${user.token}`);
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+      expect(response.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: credential.id,
+            name: credential.name,
+            url: credential.url,
+            username: credential.username,
+            password: expect.any(String),
+            userId: credential.userId,
+          }),
+        ]),
+      );
+    });
+
+    it("GET /credentials/:id", async () => {
+      const user = await createUserWithToken();
+      const credential = await createCredentialOnDB(user.id);
+
+      const response = await request(app.getHttpServer())
+        .get(`/credentials/${credential.id}`)
+        .set("Authorization", `Bearer ${user.token}`);
 
       expect(response.statusCode).toBe(HttpStatus.OK);
       expect(response.body).toEqual(
         expect.objectContaining({
-          token: expect.any(String),
+          id: credential.id,
+          name: credential.name,
+          url: credential.url,
+          username: credential.username,
+          password: expect.any(String),
+          userId: credential.userId,
         }),
       );
+    });
+
+    it(" DELETE /credentials/:id", async () => {
+      const user = await createUserWithToken();
+      const credential = await createCredentialOnDB(user.id);
+
+      const response = await request(app.getHttpServer())
+        .delete(`/credentials/${credential.id}`)
+        .set("Authorization", `Bearer ${user.token}`);
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+    });
+  });
+
+  describe("/notes", () => {
+    it("POST /notes", async () => {
+      const user = await createUserWithToken();
+
+      const note = createNote(user.id);
+      return request(app.getHttpServer())
+        .post("/notes")
+        .send(note)
+        .set("Authorization", `Bearer ${user.token}`)
+        .expect(201);
+    });
+
+    it("GET /notes", async () => {
+      const user = await createUserWithToken();
+      const note = await createNoteOnDB(user.id);
+
+      const response = await request(app.getHttpServer())
+        .get("/notes")
+        .set("Authorization", `Bearer ${user.token}`);
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+      expect(response.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: note.id,
+            name: note.name,
+            note: note.note,
+            userId: note.userId,
+          }),
+        ]),
+      );
+    });
+
+    it("GET /notes/:id", async () => {
+      const user = await createUserWithToken();
+      const note = await createNoteOnDB(user.id);
+
+      const response = await request(app.getHttpServer())
+        .get(`/notes/${note.id}`)
+        .set("Authorization", `Bearer ${user.token}`);
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: note.id,
+          name: note.name,
+          note: note.note,
+          userId: note.userId,
+        }),
+      );
+    });
+
+    it(" DELETE /notes/:id", async () => {
+      const user = await createUserWithToken();
+      const note = await createNoteOnDB(user.id);
+
+      const response = await request(app.getHttpServer())
+        .delete(`/notes/${note.id}`)
+        .set("Authorization", `Bearer ${user.token}`);
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+    });
+  });
+
+  describe("/notes", () => {
+    it("POST /notes", async () => {
+      const user = await createUserWithToken();
+
+      const note = createNote(user.id);
+      return request(app.getHttpServer())
+        .post("/notes")
+        .send(note)
+        .set("Authorization", `Bearer ${user.token}`)
+        .expect(201);
+    });
+
+    it("GET /notes", async () => {
+      const user = await createUserWithToken();
+      const note = await createNoteOnDB(user.id);
+
+      const response = await request(app.getHttpServer())
+        .get("/notes")
+        .set("Authorization", `Bearer ${user.token}`);
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+      expect(response.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: note.id,
+            name: note.name,
+            note: note.note,
+            userId: note.userId,
+          }),
+        ]),
+      );
+    });
+
+    it("GET /notes/:id", async () => {
+      const user = await createUserWithToken();
+      const note = await createNoteOnDB(user.id);
+
+      const response = await request(app.getHttpServer())
+        .get(`/notes/${note.id}`)
+        .set("Authorization", `Bearer ${user.token}`);
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: note.id,
+          name: note.name,
+          note: note.note,
+          userId: note.userId,
+        }),
+      );
+    });
+
+    it(" DELETE /notes/:id", async () => {
+      const user = await createUserWithToken();
+      const note = await createNoteOnDB(user.id);
+
+      const response = await request(app.getHttpServer())
+        .delete(`/notes/${note.id}`)
+        .set("Authorization", `Bearer ${user.token}`);
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
     });
   });
 });
