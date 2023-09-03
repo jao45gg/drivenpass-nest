@@ -1,11 +1,17 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { CreateNoteDto } from "./dto/create-note.dto";
-import { UpdateNoteDto } from "./dto/update-note.dto";
+import { user } from "@prisma/client";
+import { NotesRepository } from "./notes.repository";
 
 @Injectable()
 export class NotesService {
-  create(createNoteDto: CreateNoteDto) {
-    return "This action adds a new note";
+  constructor(private readonly notesRepository: NotesRepository) {}
+
+  async create(createNoteDto: CreateNoteDto, usuario: user) {
+    const note = await this.notesRepository.getByName(createNoteDto.name);
+    if (note) throw new ConflictException();
+
+    await this.notesRepository.create(createNoteDto, usuario.id);
   }
 
   findAll() {
@@ -14,10 +20,6 @@ export class NotesService {
 
   findOne(id: number) {
     return `This action returns a #${id} note`;
-  }
-
-  update(id: number, updateNoteDto: UpdateNoteDto) {
-    return `This action updates a #${id} note`;
   }
 
   remove(id: number) {
