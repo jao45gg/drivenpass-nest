@@ -17,6 +17,7 @@ model user {
   tokens      tokens[]
   credentials credentials[]
   notes       notes[]
+  cards       cards[]
 }
 
 model tokens {
@@ -42,4 +43,19 @@ model notes {
   note   String
   userId Int
   user   user   @relation(fields: [userId], references: [id])
+}
+
+model cards {
+  id             Int      @id @default(autoincrement())
+  name           String
+  cardNumber     Int
+  cardName       String
+  cvvNumber      Int
+  expirationDate DateTime
+  cardPassword   String
+  virtualCard    Boolean
+  credit         Boolean
+  debit          Boolean
+  userId         Int
+  user           user     @relation(fields: [userId], references: [id])
 }
