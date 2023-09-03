@@ -13,7 +13,10 @@ export class NotesService {
   constructor(private readonly notesRepository: NotesRepository) {}
 
   async create(createNoteDto: CreateNoteDto, usuario: user) {
-    const note = await this.notesRepository.getByName(createNoteDto.name);
+    const note = await this.notesRepository.getByNameAndUserId(
+      createNoteDto.name,
+      usuario.id,
+    );
     if (note) throw new ConflictException();
 
     await this.notesRepository.create(createNoteDto, usuario.id);

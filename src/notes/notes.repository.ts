@@ -6,10 +6,11 @@ import { CreateNoteDto } from "./dto/create-note.dto";
 export class NotesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getByName(name: string) {
+  async getByNameAndUserId(name: string, userId: number) {
     return await this.prisma.notes.findFirst({
       where: {
         name,
+        userId,
       },
     });
   }
