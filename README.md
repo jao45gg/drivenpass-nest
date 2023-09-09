@@ -2,6 +2,9 @@
 
 Design of a password guard application ! With the right to register, login, save password, credit card, debit card, note, and more !
 
+Try it out now on https://drivenpass-1ohm.onrender.com <br/> <br/>
+You can also check on the documentation for every route, and every DTO. It's done using swagger, and you can acess it on http://localhost:3000/api after running or [here](https://drivenpass-1ohm.onrender.com/api)
+
 ## About
 
 This is the Back-end of Drivenpass web application ! Fell free to use and abuse it !
@@ -20,8 +23,6 @@ Below are the implemented features:
 - Much more !
   
 By using this app any user can store lots of secret information with safety !
-## Routes documentation
-This API does have documentation for every route, and every DTO. It's done using swagger, and you can acess it on http://localhost:3000/api after running.
 
 ## Technologies
 The following tools and frameworks were used in the construction of the project, you can find the full list on the package.json:<br>
